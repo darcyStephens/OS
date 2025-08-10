@@ -19,11 +19,11 @@ void signal_handler(int signal)
     switch (signal) 
     {
         case SIGHUP:
-        printf("Ouch! \n");
+        printf("Ouch!");
         break;
 
         case SIGINT:
-        printf("Yeah! \n");
+        printf("Yeah!");
         break;
 
         //perform default action of all other signals
@@ -52,11 +52,11 @@ void change_signal_action(void)
 
     //put all possible signals through my handler to save me adding code here in the future
     //again something that is probably not needed. Whoever is marking this can you please tell me if this is pointless?
-    for(int sig = 1; sig < NSIG; sig++)
-    {
-        if(sig == SIGKILL || sig == SIGSTOP) continue;
-        sigaction(sig,&act, NULL);
-    }
+    // for(int sig = 1; sig < NSIG; sig++)
+    // {
+    //     if(sig == SIGKILL || sig == SIGSTOP) continue;
+    //     sigaction(sig,&act, NULL);
+    // }
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGHUP, &act, NULL);
 }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     for(int i = 0; i<= n; i = i+2)
     {
         printf("%d \n", i);
-        sleep(2);
+        sleep(5);
     }
     return 0;
    
