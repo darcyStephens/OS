@@ -57,6 +57,8 @@ void change_signal_action(void)
         if(sig == SIGKILL || sig == SIGSTOP) continue;
         sigaction(sig,&act, NULL);
     }
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGHUP, &act, NULL);
 }
 
 int main(int argc, char *argv[])
