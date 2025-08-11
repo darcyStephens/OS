@@ -146,7 +146,10 @@ int main(int argk, char *argv[], char *envp[])
         }
         else
         {wpid = wait(0); //returns PID of terminated child, returns -1 if no children exist
-        //printf("%s done \n", v[0]);
+        if(wpid == -1)
+        {
+          perror("wait");
+        }
         }
         break;
       }
