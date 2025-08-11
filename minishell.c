@@ -107,7 +107,7 @@ int main(int argk, char *argv[], char *envp[])
       for (int j = 0; j < i; j++) {
       printf("%s ", v[j]);
     }
-    printf(" Job ID: %d to run in the background \n", running_jobs[i].job_ID+1);
+    
 }
 
     else
@@ -141,6 +141,7 @@ int main(int argk, char *argv[], char *envp[])
           running_jobs[job_count].job_ID = job_count +1;
           //move to the next job
           job_count++;
+          printf(" Job ID: %d to run in the background \n", running_jobs[i].job_ID);
 
 
         }
