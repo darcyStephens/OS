@@ -11,8 +11,25 @@
 
 #define NV 20			/* max number of command tokens */
 #define NL 100			/* input buffer size */
-char            line[NL];	/* command input buffer */
+char line[NL];	/* command input buffer */
 
+
+
+//function that will put a command into the background
+void to_background(int signal)
+{
+
+}
+
+struct Job
+{
+    pid_t pid;
+    char command[NL];
+    int job_ID;
+};
+
+struct Job running_jobs[NL];
+int job_count = 0;
 
 /*
 	shell prompt
@@ -35,6 +52,8 @@ int main(int argk, char *argv[], char *envp[])
   char *v[NV];	        /* array of pointers to command line tokens */
   char *sep = " \t\n";  /* command line token separators    */
   int i;		          /* parse index */
+  int background; //background flag for when a command has & at the end
+  signal(SIGCHLD, &to_background);
 
     /* prompt for and process one command line at a time  */
 
@@ -62,6 +81,21 @@ int main(int argk, char *argv[], char *envp[])
     }
     /* assert i is number of tokens + 1 */
 
+    //check if we are sending this input to a background process
+    if(strcmp(v[i-1],"&") == 0)
+    {
+        background = 1;
+
+        //remove the & so it wont be run by execvp
+        v[i-1] = NULL;
+
+        printf("Sending "); for(int j = 0; j < i-1; j++){printf("%s ", v[j]);} printf("to run in the background \n");
+    }
+    else
+    {
+        background = 0;
+    }
+
     /* fork a child process to exec the command in v[0] */
     switch (frkRtnVal = fork()) {
       case -1:			/* fork returns error to parent process */
@@ -70,7 +104,8 @@ int main(int argk, char *argv[], char *envp[])
       }
       case 0:			/* code executed only by child process */
       {
-	      execvp(v[0], v);
+        printf("child process executing \n");
+        execvp(v[0], v);
       }
       default:			/* code executed only by parent process */
       {
