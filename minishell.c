@@ -37,7 +37,7 @@ void to_background(int signal)
       {
 
         // remove job from list
-        printf("[%d] %s \n", running_jobs[itr].job_ID, running_jobs[itr].command);
+        printf("[%d] %s Done \n", running_jobs[itr].job_ID, running_jobs[itr].command);
         for (int jit = itr; jit < job_count - 1; jit++)
         {
           running_jobs[jit] = running_jobs[jit + 1];
@@ -170,6 +170,7 @@ int main(int argk, char *argv[], char *envp[])
         // move to the next job
         job_count++;
         printf("[%d] %d\n", running_jobs[i].job_ID + 1, frkRtnVal);
+        break;
       }
       else
       {
