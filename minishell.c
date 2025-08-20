@@ -46,7 +46,8 @@ void to_background(int signal)
         {
             if (waiting_jobs[k].p_id == sig_pid)
             {
-                printf("[%d] +Done %s \n", waiting_jobs[k].job_ID, waiting_jobs[k].command);
+                //I had the plus in the wrong spot for a hot min
+                printf("[%d]+ Done %s\n", waiting_jobs[k].job_ID, waiting_jobs[k].command);
                 // Remove the job from the list
                 for (int j = k; j < job_count - 1; j++)
                 {
