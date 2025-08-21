@@ -126,7 +126,7 @@ int main(int argk, char *argv[], char *envp[])
                 i--; // go down beacuse we set the last input to null
 
                 //handle the child process that goes to the background
-                signal(SIGCHLD, to_background); //tried to use sigaction but have up and kept it simple
+                signal(SIGCHLD, to_background); //tried to use sigaction but gave up and kept it simple
             }
             else
             {
