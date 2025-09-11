@@ -9,9 +9,7 @@
 
 public interface MMU {
 
-    public int PageFaults = 0;
-    public int DiskWrites = 0;
-    public int DiskReads = 0;
+    
 
 
     public void readMemory(int page_number);
