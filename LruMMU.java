@@ -14,13 +14,11 @@ public class LruMMU implements MMU {
     public int DiskReads;
 
     // stores the PageNumber:time, each time a page is hit, update their time
-    public HashMap<Integer, Long> TLB; //could change to just be a counter, would be easier
+    public HashMap<Integer, Long> TLB; // could change to just be a counter, would be easier
     public Set<Integer> dirtyPages;
-
 
     public int MaxFrames;
     public boolean debug;
-
 
     public LruMMU(int frames) {
         PageFaults = 0;
@@ -31,8 +29,6 @@ public class LruMMU implements MMU {
         MaxFrames = frames;
         debug = false;
     }
-
-    
 
     /*
      * If page is in TLB, updates its access time and return 1
@@ -95,16 +91,13 @@ public class LruMMU implements MMU {
         // todo
         // if(!dirtyPages.contains(page_number))
         // {
-        //     dirtyPages.add(page_number);
+        // dirtyPages.add(page_number);
         // }
         int retVal = Replace(page_number);
-        if(retVal == -1)
-        {
+        if (retVal == -1) {
             PageFaults++;
             DiskReads++;
-        }
-        else if(retVal == 0)
-        {
+        } else if (retVal == 0) {
             PageFaults++;
             DiskReads++;
             DiskWrites++;
@@ -115,13 +108,12 @@ public class LruMMU implements MMU {
         // insert into DirtyPages here
         dirtyPages.add(page_number);
         int retVal = Replace(page_number);
-        if(retVal == -1)
-        {
+        if (retVal == -1) {
             PageFaults++;
-        }
-        else if(retVal == 0)
-        {
+            DiskReads++;
+        } else if (retVal == 0) {
             PageFaults++;
+            DiskReads++;
             DiskWrites++;
         }
     }
