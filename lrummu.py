@@ -5,14 +5,10 @@ import logging
 class LruMMU(MMU):
     def __init__(self,frames):
         super().__init__(frames)
-        self.tlb = {}
-        self.dirty_pages = set()
 
 
     def replace(self, page_number):
-
-
-            
+    
         if page_number in self.tlb:
             self.log(f"HIt updating for page {page_number}")
             self.tlb[page_number] = time.time_ns()

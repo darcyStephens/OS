@@ -16,7 +16,7 @@ class MMU:
         self.disk_writes = 0
         self.debug = False
         self.max_frames = frames
-        self.frames = {}  
+        self.tlb = {}  
         self.dirty_pages = set()  
 
     def read_memory(self, page_number):
@@ -41,6 +41,10 @@ class MMU:
             self.disk_reads += 1
             self.disk_writes += 1
         self.log(f"Write {page_number}: {'Hit' if ret_val == 1 else 'Miss'}")
+
+
+
+        
     def log(self,text:str):
         if not self.debug:
             return
