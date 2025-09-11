@@ -1,0 +1,16 @@
+experiments:
+  traces:
+    - "bzip.trace"
+
+  algorithms:
+    - "rand"
+    - "lru"
+    - "clock"
+
+  frame_sizes:
+    min: 1
+    max: 4
+
+  output:
+    results_file: "experiment_results.json"
+    graphs_dir: "graphs"
