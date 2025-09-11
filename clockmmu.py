@@ -13,6 +13,9 @@ class ClockMMU(MMU):
         if page_number in self.tlb:
             self.log("Hit, set use flag")
             self.tlb[page_number]['use'] = 1
+            if page_number in self.dirty_pages:
+                self.tlb[page_number]['dirty'] = 1
+                self.dirty_pages.remove(page_number)
             return 1
 
         if len(self.tlb)<self.max_frames:
