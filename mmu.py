@@ -33,10 +33,10 @@ class MMU:
     def write_memory(self, page_number):
         self.dirty_pages.add(page_number) 
         ret_val = self.replace(page_number)
-        if ret_val == -1:
+        if ret_val == -1: #Miss
             self.page_faults += 1
             self.disk_reads += 1
-        elif ret_val == 0:
+        elif ret_val == 0: #dirty page 
             self.page_faults += 1
             self.disk_reads += 1
             self.disk_writes += 1
@@ -44,7 +44,7 @@ class MMU:
 
 
 
-        
+
     def log(self,text:str):
         if not self.debug:
             return

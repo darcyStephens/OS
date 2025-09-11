@@ -1,34 +1,33 @@
 from mmu import MMU
+import random
 
 class RandMMU(MMU):
     def __init__(self, frames):
-        # TODO: Constructor logic for RandMMU
-        pass
+        super().__init__(frames)
 
-    def set_debug(self):
-        # TODO: Implement the method to set debug mode
-        pass
 
-    def reset_debug(self):
-        # TODO: Implement the method to reset debug mode
-        pass
+    def replace(self, page_number):
+        
+        if page_number in self.tlb:
+            self.log("Hit returning 1")
+            return 1
 
-    def read_memory(self, page_number):
-        # TODO: Implement the method to read memory
-        pass
+        if len(self.tlb)<self.max_frames:
+            self.tlb[page_number]=-1
+            if page_number in self.dirty_pages:
+                self.dirty_pages.remove(page_number)
+            return -1
+        
+        if len(self.tlb)==self.max_frames:
 
-    def write_memory(self, page_number):
-        # TODO: Implement the method to write memory
-        pass
+            victim=random.choice(list(self.tlb.keys()))
+            del self.tlb[victim]
 
-    def get_total_disk_reads(self):
-        # TODO: Implement the method to get total disk reads
-        return -1
+            self.tlb[page_number]=-1 
 
-    def get_total_disk_writes(self):
-        # TODO: Implement the method to get total disk writes
-        return -1
+            if victim in self.dirty_pages:
+                self.dirty_pages.remove(victim)
+                return 0
 
-    def get_total_page_faults(self):
-        # TODO: Implement the method to get total page faults
-        return -1
+            return -1
+
