@@ -50,7 +50,7 @@ class ClockMMU(MMU):
         self.clock_hand = (self.clock_hand + 1) % self.max_frames
         self.log(f"  Evicted {victim} (dirty: {was_dirty})")
 
-        if page_number in self.dirty_pages:
-            self.dirty_pages.remove(page_number)
+        # if page_number in self.dirty_pages:
+        #     self.dirty_pages.remove(page_number)
 
         return 0 if was_dirty else -1
