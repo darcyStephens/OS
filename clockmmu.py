@@ -18,8 +18,8 @@ class ClockMMU(MMU):
             self.log("Miss, space available adding to table")
             self.tlb[page_number] = True
             self.circle.append(page_number)
-            if page_number in self.dirty_pages:
-                self.dirty_pages.remove(page_number)
+            # if page_number in self.dirty_pages:
+            #     self.dirty_pages.remove(page_number)
             self.log(f"  Loaded {page_number}")
             return -1
 
