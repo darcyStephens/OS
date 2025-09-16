@@ -109,6 +109,10 @@ public class LruMMU implements MMU {
             DiskReads++;
             DiskWrites++;
         }
+        else if(retVal == 1)
+        {
+            DiskReads++;
+        }
     }
 
     public void writeMemory(int page_number) {

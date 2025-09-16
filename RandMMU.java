@@ -1,19 +1,44 @@
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
 * MMU using random selection replacement strategy
 */
 
 public class RandMMU implements MMU {
+
+    public int PageFaults;
+    public int DiskWrites;
+    public int DiskReads;
+
+    //stores the pages in the tlb
+    public Set<Integer> TLB; 
+    //tracks the dirty pages
+    public Set<Integer> dirtyPages;
+
+
+    public int MaxFrames;
+    public boolean debug;
+
     public RandMMU(int frames) {
-        //todo
+        PageFaults = 0;
+        DiskReads = 0;
+        DiskWrites = 0;
+        TLB = new HashSet<>();
+        dirtyPages = new HashSet<>();
+        MaxFrames = frames;
+        debug = false;
     }
     
     public void setDebug() {
-        //todo
+        debug =true;
     }
     
     public void resetDebug() {
-        //todo
+        debug =false;
     }
+    
     
     public void readMemory(int page_number) {
         //todo
