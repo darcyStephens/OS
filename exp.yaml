@@ -1,15 +1,17 @@
 experiments:
   traces:
-    - "bzip.trace"
+    - "sixpack.trace"
 
   algorithms:
     - "rand"
     - "lru"
     - "clock"
 
+  # Start very low to see shortage behavior, go high to see excess behavior
   frame_sizes:
     min: 1
-    max: 4
+    max: 16
+    step: 1
 
   output:
     results_file: "experiment_results.json"
