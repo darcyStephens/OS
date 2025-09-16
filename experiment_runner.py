@@ -168,15 +168,13 @@ def run_experiments(config_file):
 
 def generate_graphs(results, graphs_dir):
     """Generate graphs from experiment results"""
-    os.makedirs(graphs_dir, exist_ok=True)
-
-    # Group results by trace and experiment
+    os.makedirs(graphs_dir, exist_ok=True)  # Group results by trace and experiment
     traces = {}
     for result in results:
         trace = result["trace_file"]
         exp_name = result.get("experiment_name", "default")
 
-        # Create unique key for trace + experiment combination
+        # Create unique key for trace + experiment combination for data grouping
         trace_key = f"{Path(trace).stem}_{exp_name}"
 
         if trace_key not in traces:
@@ -185,6 +183,10 @@ def generate_graphs(results, graphs_dir):
 
     # Generate graphs for each trace/experiment combination
     for trace_key, trace_data in traces.items():
+        # Extract just the trace name for display and file naming
+        trace_name = trace_key.split("_")[
+            0
+        ]  # Get just the trace part before first underscore
         # Page fault rate vs frames
         plt.figure(figsize=(12, 8))
 
@@ -204,7 +206,7 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Page Fault Rate")
-        plt.title(f"Page Fault Rate vs Frame Size - {trace_key}")
+        plt.title(f"Page Fault Rate vs Frame Size - {trace_name}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
@@ -227,7 +229,7 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Total Disk Operations")
-        plt.title(f"Disk Operations vs Frame Size - {trace_key}")
+        plt.title(f"Disk Operations vs Frame Size - {trace_name}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
@@ -250,7 +252,7 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Execution Time (seconds)")
-        plt.title(f"Execution Time vs Frame Size - {trace_key}")
+        plt.title(f"Execution Time vs Frame Size - {trace_name}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
@@ -275,7 +277,7 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Hit Rate (1 - Page Fault Rate)")
-        plt.title(f"Hit Rate vs Frame Size - {trace_key}")
+        plt.title(f"Hit Rate vs Frame Size - {trace_name}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.ylim(0, 1)  # Hit rate is between 0 and 1
@@ -298,7 +300,7 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Hit Rate (1 - Page Fault Rate)")
         plt.ylabel("Execution Time (seconds)")
-        plt.title(f"Hit Rate vs Execution Time - {trace_key}")
+        plt.title(f"Hit Rate vs Execution Time - {trace_name}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.xlim(0, 1)  # Hit rate is between 0 and 1
