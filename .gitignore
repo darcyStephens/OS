@@ -1,8 +1,0 @@
-env
-env/
-graphs
-graphs/
-*.trace
-*.gz
-__pycache__
-*.json
