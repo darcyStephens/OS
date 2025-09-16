@@ -78,104 +78,113 @@ def run_experiments(config_file):
     with open(config_file, "r") as f:
         config = yaml.safe_load(f)
 
-    experiments = config["experiments"]
-    results = []
-
-    # Generate frame sizes
-    if isinstance(experiments["frame_sizes"], dict):
-        if "step" in experiments["frame_sizes"]:
-            # Linear frame sizes with min/max/step
-            frame_sizes = list(
-                range(
-                    experiments["frame_sizes"]["min"],
-                    experiments["frame_sizes"]["max"] + 1,
-                    experiments["frame_sizes"]["step"],
-                )
-            )
-        else:
-            # Exponential frame sizes (powers of 2)
-            min_exp = experiments["frame_sizes"]["min"]
-            max_exp = experiments["frame_sizes"]["max"]
-            frame_sizes = [2**i for i in range(min_exp, max_exp + 1)]
+    # Handle both old format (single experiment) and new format (list of experiments)
+    if "experiments" in config and isinstance(config["experiments"], list):
+        experiments_list = config["experiments"]
+        output_config = config["output"]
     else:
-        frame_sizes = experiments["frame_sizes"]
+        # Old format - convert to new format
+        experiments_list = [config["experiments"]]
+        output_config = config["experiments"]["output"]
 
-    total_experiments = (
-        len(experiments["traces"]) * len(experiments["algorithms"]) * len(frame_sizes)
-    )
-    current_experiment = 0
+    all_results = []
 
-    print(f"Running {total_experiments} experiments...")
+    for exp_idx, experiment in enumerate(experiments_list):
+        exp_name = experiment.get("name", f"experiment_{exp_idx + 1}")
+        exp_description = experiment.get("description", "")
 
-    # Run all combinations
-    for trace in experiments["traces"]:
-        if not os.path.exists(trace):
-            print(f"Warning: {trace} not found, skipping...")
-            continue
+        print(f"\n{'=' * 60}")
+        print(f"Running Experiment: {exp_name}")
+        if exp_description:
+            print(f"Description: {exp_description}")
+        print(f"{'=' * 60}")
 
-        print(f"\nProcessing {trace}...")
-
-        for algorithm in experiments["algorithms"]:
-            print(f"  Algorithm: {algorithm}")
-
-            for frames in frame_sizes:
-                current_experiment += 1
-                print(
-                    f"    Frames: {frames} ({current_experiment}/{total_experiments})"
+        # Generate frame sizes for this experiment
+        if isinstance(experiment["frame_sizes"], dict):
+            if "step" in experiment["frame_sizes"]:
+                # Linear frame sizes with min/max/step
+                frame_sizes = list(
+                    range(
+                        experiment["frame_sizes"]["min"],
+                        experiment["frame_sizes"]["max"] + 1,
+                        experiment["frame_sizes"]["step"],
+                    )
                 )
+            else:
+                # Exponential frame sizes (powers of 2)
+                min_exp = experiment["frame_sizes"]["min"]
+                max_exp = experiment["frame_sizes"]["max"]
+                frame_sizes = [2**i for i in range(min_exp, max_exp + 1)]
+        else:
+            frame_sizes = experiment["frame_sizes"]
 
-                result = run_single_simulation(trace, frames, algorithm)
+        total_experiments = (
+            len(experiment["traces"]) * len(experiment["algorithms"]) * len(frame_sizes)
+        )
+        current_experiment = 0
 
-                if result:
-                    results.append(result)
+        print(f"Running {total_experiments} simulations for this experiment...")
 
-    # Run custom experiments if specified
-    if "custom_experiments" in config:
-        print("\nRunning custom experiments...")
-        for custom_exp in config["custom_experiments"]:
-            if not os.path.exists(custom_exp["trace"]):
+        # Run all combinations for this experiment
+        for trace in experiment["traces"]:
+            if not os.path.exists(trace):
+                print(f"Warning: {trace} not found, skipping...")
                 continue
 
-            for algorithm in custom_exp["algorithms"]:
-                for frames in custom_exp["frames"]:
-                    result = run_single_simulation(
-                        custom_exp["trace"], frames, algorithm
+            print(f"\nProcessing {trace}...")
+
+            for algorithm in experiment["algorithms"]:
+                print(f"  Algorithm: {algorithm}")
+
+                for frames in frame_sizes:
+                    current_experiment += 1
+                    print(
+                        f"    Frames: {frames} ({current_experiment}/{total_experiments})"
                     )
+
+                    result = run_single_simulation(trace, frames, algorithm)
+
                     if result:
-                        results.append(result)
+                        # Add experiment metadata to result
+                        result["experiment_name"] = exp_name
+                        result["experiment_description"] = exp_description
+                        all_results.append(result)
 
     # Save results
-    output_file = experiments["output"]["results_file"]
+    output_file = output_config["results_file"]
     with open(output_file, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(all_results, f, indent=2)
 
     print(f"\nResults saved to {output_file}")
 
     # Generate graphs
-    generate_graphs(results, experiments["output"]["graphs_dir"])
+    generate_graphs(all_results, output_config["graphs_dir"])
 
     # Print summary
-    print_summary(results)
+    print_summary(all_results)
 
-    return results
+    return all_results
 
 
 def generate_graphs(results, graphs_dir):
     """Generate graphs from experiment results"""
     os.makedirs(graphs_dir, exist_ok=True)
 
-    # Group results by trace
+    # Group results by trace and experiment
     traces = {}
     for result in results:
         trace = result["trace_file"]
-        if trace not in traces:
-            traces[trace] = {"rand": [], "lru": [], "clock": []}
-        traces[trace][result["algorithm"]].append(result)
+        exp_name = result.get("experiment_name", "default")
 
-    # Generate graphs for each trace
-    for trace, trace_data in traces.items():
-        trace_name = Path(trace).stem
+        # Create unique key for trace + experiment combination
+        trace_key = f"{Path(trace).stem}_{exp_name}"
 
+        if trace_key not in traces:
+            traces[trace_key] = {"rand": [], "lru": [], "clock": []}
+        traces[trace_key][result["algorithm"]].append(result)
+
+    # Generate graphs for each trace/experiment combination
+    for trace_key, trace_data in traces.items():
         # Page fault rate vs frames
         plt.figure(figsize=(12, 8))
 
@@ -195,11 +204,11 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Page Fault Rate")
-        plt.title(f"Page Fault Rate vs Frame Size - {trace_name}")
+        plt.title(f"Page Fault Rate vs Frame Size - {trace_key}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_fault_rate.png", dpi=300, bbox_inches="tight"
+            f"{graphs_dir}/{trace_key}_fault_rate.png", dpi=300, bbox_inches="tight"
         )
         plt.close()
 
@@ -218,11 +227,11 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Total Disk Operations")
-        plt.title(f"Disk Operations vs Frame Size - {trace_name}")
+        plt.title(f"Disk Operations vs Frame Size - {trace_key}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_disk_ops.png", dpi=300, bbox_inches="tight"
+            f"{graphs_dir}/{trace_key}_disk_ops.png", dpi=300, bbox_inches="tight"
         )
         plt.close()
 
@@ -241,11 +250,11 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Execution Time (seconds)")
-        plt.title(f"Execution Time vs Frame Size - {trace_name}")
+        plt.title(f"Execution Time vs Frame Size - {trace_key}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_execution_time.png",
+            f"{graphs_dir}/{trace_key}_execution_time.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -266,12 +275,12 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Number of Frames")
         plt.ylabel("Hit Rate (1 - Page Fault Rate)")
-        plt.title(f"Hit Rate vs Frame Size - {trace_name}")
+        plt.title(f"Hit Rate vs Frame Size - {trace_key}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.ylim(0, 1)  # Hit rate is between 0 and 1
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_hit_rate.png", dpi=300, bbox_inches="tight"
+            f"{graphs_dir}/{trace_key}_hit_rate.png", dpi=300, bbox_inches="tight"
         )
         plt.close()
 
@@ -289,12 +298,12 @@ def generate_graphs(results, graphs_dir):
 
         plt.xlabel("Hit Rate (1 - Page Fault Rate)")
         plt.ylabel("Execution Time (seconds)")
-        plt.title(f"Hit Rate vs Execution Time - {trace_name}")
+        plt.title(f"Hit Rate vs Execution Time - {trace_key}")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.xlim(0, 1)  # Hit rate is between 0 and 1
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_hitrate_vs_time.png",
+            f"{graphs_dir}/{trace_key}_hitrate_vs_time.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -348,10 +357,10 @@ def generate_graphs(results, graphs_dir):
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax1.legend(lines1 + lines2, labels1 + labels2, loc="center right")
 
-        plt.title(f"Hit Rate & Execution Time vs Frame Size - {trace_name}")
+        plt.title(f"Hit Rate & Execution Time vs Frame Size - {trace_key}")
         plt.grid(True, alpha=0.3)
         plt.savefig(
-            f"{graphs_dir}/{trace_name}_dual_axis.png", dpi=300, bbox_inches="tight"
+            f"{graphs_dir}/{trace_key}_dual_axis.png", dpi=300, bbox_inches="tight"
         )
         plt.close()
 

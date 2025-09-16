@@ -1,18 +1,29 @@
 experiments:
-  traces:
-    - "sixpack.trace"
+  - name: "sixpack_low_memory"
+    description: "Test sixpack with low memory (1-16 frames)"
+    traces:
+      - "sixpack.trace"
+    algorithms:
+      - "rand"
+      - "lru"
+      - "clock"
+    frame_sizes:
+      min: 1
+      max: 16
+      step: 1
 
-  algorithms:
-    - "rand"
-    - "lru"
-    - "clock"
+  - name: "sixpack_high_memory"
+    description: "Test sixpack with higher memory (50-500 frames)"
+    traces:
+      - "sixpack.trace"
+    algorithms:
+      - "lru"
+      - "clock"
+      - "rand"
+    frame_sizes:
+      min: 1
+      max: 8
 
-  # Start very low to see shortage behavior, go high to see excess behavior
-  frame_sizes:
-    min: 1
-    max: 16
-    step: 1
-
-  output:
-    results_file: "experiment_results.json"
-    graphs_dir: "graphs"
+output:
+  results_file: "experiment_results.json"
+  graphs_dir: "graphs"
