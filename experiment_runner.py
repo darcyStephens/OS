@@ -286,26 +286,57 @@ def generate_graphs(results, graphs_dir):
         )
         plt.close()
 
-        # NEW: Hit rate vs execution time scatter plot
-        plt.figure(figsize=(12, 8))
+        # NEW: Dual-axis plot - Disk reads and writes vs frames
+        fig, ax1 = plt.subplots(figsize=(12, 8))
+
+        # Left y-axis for disk reads
+        ax1.set_xlabel("Number of Frames")
+        ax1.set_ylabel("Disk Reads", color="blue")
+        ax1.tick_params(axis="y", labelcolor="blue")
+
+        # Right y-axis for disk writes
+        ax2 = ax1.twinx()
+        ax2.set_ylabel("Disk Writes", color="red")
+        ax2.tick_params(axis="y", labelcolor="red")
 
         for algorithm, data in trace_data.items():
             if data:
-                hit_rates = [d["hit_rate"] for d in data]
-                exec_times = [d["execution_time"] for d in data]
+                data_sorted = sorted(data, key=lambda x: x["frames"])
+                frames = [d["frames"] for d in data_sorted]
+                disk_reads = [d["disk_reads"] for d in data_sorted]
+                disk_writes = [d["disk_writes"] for d in data_sorted]
 
-                plt.scatter(
-                    hit_rates, exec_times, label=algorithm.upper(), alpha=0.7, s=50
+                # Plot disk reads on left axis (blue tones)
+                ax1.plot(
+                    frames,
+                    disk_reads,
+                    marker="o",
+                    linestyle="-",
+                    label=f"{algorithm.upper()} Reads",
+                    linewidth=2,
+                    alpha=0.8,
                 )
 
-        plt.xlabel("Hit Rate (1 - Page Fault Rate)")
-        plt.ylabel("Execution Time (seconds)")
-        plt.title(f"Hit Rate vs Execution Time - {trace_name}")
-        plt.legend()
+                # Plot disk writes on right axis (red tones)
+                ax2.plot(
+                    frames,
+                    disk_writes,
+                    marker="s",
+                    linestyle="--",
+                    label=f"{algorithm.upper()} Writes",
+                    linewidth=2,
+                    alpha=0.8,
+                )
+
+        # Combine legends from both axes
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+
+        plt.title(f"Disk Reads & Writes vs Frame Size - {trace_name}")
         plt.grid(True, alpha=0.3)
-        plt.xlim(0, 1)  # Hit rate is between 0 and 1
         plt.savefig(
-            f"{graphs_dir}/{trace_key}_hitrate_vs_time.png",
+            f"{graphs_dir}/{trace_key}_reads_writes_dual.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -363,6 +394,115 @@ def generate_graphs(results, graphs_dir):
         plt.grid(True, alpha=0.3)
         plt.savefig(
             f"{graphs_dir}/{trace_key}_dual_axis.png", dpi=300, bbox_inches="tight"
+        )
+        plt.close()
+
+        # NEW: Disk writes vs frames
+        plt.figure(figsize=(12, 8))
+
+        for algorithm, data in trace_data.items():
+            if data:
+                data_sorted = sorted(data, key=lambda x: x["frames"])
+                frames = [d["frames"] for d in data_sorted]
+                disk_writes = [d["disk_writes"] for d in data_sorted]
+
+                plt.plot(
+                    frames,
+                    disk_writes,
+                    marker="v",
+                    label=algorithm.upper(),
+                    linewidth=2,
+                )
+
+        plt.xlabel("Number of Frames")
+        plt.ylabel("Disk Writes")
+        plt.title(f"Disk Writes vs Frame Size - {trace_name}")
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.savefig(
+            f"{graphs_dir}/{trace_key}_disk_writes.png", dpi=300, bbox_inches="tight"
+        )
+        plt.close()
+
+        # # NEW: Hit rate vs disk writes scatter plot
+        # plt.figure(figsize=(12, 8))
+
+        # for algorithm, data in trace_data.items():
+        #     if data:
+        #         hit_rates = [d["hit_rate"] for d in data]
+        #         disk_writes = [d["disk_writes"] for d in data]
+
+        #         plt.scatter(
+        #             hit_rates, disk_writes, label=algorithm.upper(), alpha=0.7, s=50
+        #         )
+
+        # plt.xlabel("Hit Rate (1 - Page Fault Rate)")
+        # plt.ylabel("Disk Writes")
+        # plt.title(f"Hit Rate vs Disk Writes - {trace_name}")
+        # plt.legend()
+        # plt.grid(True, alpha=0.3)
+        # plt.xlim(0, 1)  # Hit rate is between 0 and 1
+        # plt.savefig(
+        #     f"{graphs_dir}/{trace_key}_hitrate_vs_writes.png",
+        #     dpi=300,
+        #     bbox_inches="tight",
+        # )
+        # plt.close()
+
+        # NEW: Dual-axis plot - Hit rate and disk writes vs frames
+        fig, ax1 = plt.subplots(figsize=(12, 8))
+
+        # Left y-axis for hit rate
+        ax1.set_xlabel("Number of Frames")
+        ax1.set_ylabel("Hit Rate (1 - Page Fault Rate)", color="blue")
+        ax1.tick_params(axis="y", labelcolor="blue")
+        ax1.set_ylim(0, 1)
+
+        # Right y-axis for disk writes
+        ax2 = ax1.twinx()
+        ax2.set_ylabel("Disk Writes", color="green")
+        ax2.tick_params(axis="y", labelcolor="green")
+
+        for algorithm, data in trace_data.items():
+            if data:
+                data_sorted = sorted(data, key=lambda x: x["frames"])
+                frames = [d["frames"] for d in data_sorted]
+                hit_rates = [d["hit_rate"] for d in data_sorted]
+                disk_writes = [d["disk_writes"] for d in data_sorted]
+
+                # Plot hit rate on left axis (blue tones)
+                ax1.plot(
+                    frames,
+                    hit_rates,
+                    marker="o",
+                    linestyle="-",
+                    label=f"{algorithm.upper()} Hit Rate",
+                    linewidth=2,
+                    alpha=0.8,
+                )
+
+                # Plot disk writes on right axis (green tones)
+                ax2.plot(
+                    frames,
+                    disk_writes,
+                    marker="v",
+                    linestyle="--",
+                    label=f"{algorithm.upper()} Writes",
+                    linewidth=2,
+                    alpha=0.8,
+                )
+
+        # Combine legends from both axes
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc="center right")
+
+        plt.title(f"Hit Rate & Disk Writes vs Frame Size - {trace_name}")
+        plt.grid(True, alpha=0.3)
+        plt.savefig(
+            f"{graphs_dir}/{trace_key}_hitrate_writes_dual.png",
+            dpi=300,
+            bbox_inches="tight",
         )
         plt.close()
 
