@@ -9,13 +9,85 @@ experiments:
       - "clock"
     frame_sizes:
       min: 1
-      max: 16
+      max: 32
       step: 1
 
   - name: "sixpack_high_memory"
     description: "Test sixpack with higher memory (50-500 frames)"
     traces:
       - "sixpack.trace"
+    algorithms:
+      - "lru"
+      - "clock"
+      - "rand"
+    frame_sizes:
+      min: 1
+      max: 8
+  - name: "gcc_low_memory"
+    description: "Test gcc with low memory (1-16 frames)"
+    traces:
+      - "gcc.trace"
+    algorithms:
+      - "rand"
+      - "lru"
+      - "clock"
+    frame_sizes:
+      min: 1
+      max: 32
+      step: 1
+
+  - name: "gcc_high_memory"
+    description: "Test sixpack with higher memory (50-500 frames)"
+    traces:
+      - "gcc.trace"
+    algorithms:
+      - "lru"
+      - "clock"
+      - "rand"
+    frame_sizes:
+      min: 1
+      max: 8
+  - name: "swim_low_memory"
+    description: "Test swim with low memory (1-16 frames)"
+    traces:
+      - "swim.trace"
+    algorithms:
+      - "rand"
+      - "lru"
+      - "clock"
+    frame_sizes:
+      min: 1
+      max: 32
+      step: 1
+
+  - name: "swim_high_memory"
+    description: "Test swim with higher memory (50-500 frames)"
+    traces:
+      - "swim.trace"
+    algorithms:
+      - "lru"
+      - "clock"
+      - "rand"
+    frame_sizes:
+      min: 1
+      max: 8
+  - name: "bzip_low_memory"
+    description: "Test sixpack with low memory (1-16 frames)"
+    traces:
+      - "bzip.trace"
+    algorithms:
+      - "rand"
+      - "lru"
+      - "clock"
+    frame_sizes:
+      min: 1
+      max: 32
+      step: 1
+
+  - name: "bzip_high_memory"
+    description: "Test sixpack with higher memory (50-500 frames)"
+    traces:
+      - "bzip.trace"
     algorithms:
       - "lru"
       - "clock"
