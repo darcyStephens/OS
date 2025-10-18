@@ -11,28 +11,18 @@
 /* this function will be called by mergesort() and also by parallel_mergesort(). */
 void merge(int leftstart, int leftend, int rightstart, int rightend){
     int left = leftend - leftstart + 1;
-    int right = rightend - rightstart;
+    int right = rightend - rightstart + 1;
 
-    int k = 0;
-
+    
     //copy contents into leftside and rightside of B
-    for(int i = leftstart; i < leftend; i++)
+    for(int z = leftstart; z <= rightend; z++)
     {
-        B[k] = A[i];
-        k++;
+        B[z] = A[z];
     }
-    k = rightstart;
-    for(int j = rightstart; j < rightend; j++)
-    {
-        B[k] = A[j];
-        k++;
-    }
-
-    //copy contents back into A sorted
     int i = leftstart;
     int j = rightstart;
-    k = leftstart;
-    while(i < leftend && j < rightend)
+    int k = leftstart;
+    while(i <= leftend && j <= rightend)
     {
         if(B[i] <= B[j])
         {
@@ -46,34 +36,31 @@ void merge(int leftstart, int leftend, int rightstart, int rightend){
         }
         k++;
     }
-
-    //copy any remaining contents into A
-    while(i < leftend)
+    while(i<=leftend)
     {
         A[k] = B[i];
         i++;
         k++;
     }
-
-     while(j < rightend)
+    while(j<=rightend)
     {
         A[k] = B[j];
         j++;
         k++;
     }
+    
+
+  
+   
 }
 /* this function will be called by parallel_mergesort() as its base case. */
 void my_mergesort(int left, int right){
     if(left < right)
     {
-        int leftstart = 0;
-        int leftend = right - left;
-        int rightstart = leftend+1;
-        int rightend = left + (right-left);
-
-        my_mergesort(leftstart, leftend);
-        my_mergesort(rightstart, rightend);
-        merge(leftstart, leftend, rightstart, rightend);
+      int mid = (left+right)/2;
+      my_mergesort(left, mid);
+      my_mergesort(mid+1, right); 
+      merge(left, mid, mid+1, right);
     }
 }
 
