@@ -8,14 +8,26 @@
 #include <stdlib.h> /* for malloc */
 #include "mergesort.h"
 
+
+void print_array_(int left, int right, int *array) {
+    while (left <= right) {
+        printf("%d, ", array[left]);
+        left++;
+    }
+    printf("\n");
+}
+
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+
 /* this function will be called by mergesort() and also by parallel_mergesort(). */
 void merge(int leftstart, int leftend, int rightstart, int rightend)
 {
-    int left = leftend - leftstart + 1;
-    int right = rightend - rightstart + 1;
 
     // copy contents into leftside and rightside of B
-    for (int z = leftstart; z <= rightend; z++)
+    int z = leftstart;
+    for(z = leftstart; z <= rightend; z++)
     {
         B[z] = A[z];
     }
@@ -74,12 +86,10 @@ void * parallel_mergesort(void *arg)
     int right = args->right;
     int level = args->level;
 
-    int size = sizeof(A)/sizeof(A[0]);
-    //will hold the left and right sizes of each sub array
-    int sizes[] = calloc(size*2, sizeof(int));
     if (level >= cutoff)
     {
         my_mergesort(left, right);
+        return NULL;
     }
     else
     {
@@ -102,9 +112,10 @@ void * parallel_mergesort(void *arg)
         //merge the sorted sub arrays
         merge(left, mid, mid + 1, right);
 
-        //free allocated memory for arguments
-        free(leftArg);
-        free(rightArg);
+        // //free allocated memory for arguments
+        // free(leftArg);
+        // free(rightArg);
+        return NULL;
     }
 
     //parellel the sorting of each sub section of the array.
