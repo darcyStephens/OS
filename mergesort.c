@@ -25,7 +25,7 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 void merge(int leftstart, int leftend, int rightstart, int rightend)
 {
 
-    // copy contents into leftside and rightside of B
+    //copy the contents of A into B
     int z = leftstart;
     for(z = leftstart; z <= rightend; z++)
     {
@@ -35,13 +35,14 @@ void merge(int leftstart, int leftend, int rightstart, int rightend)
     int j = rightstart;
     int k = leftstart;
 
-    // compare and merge smaller elements back into A
+    // compare and place smaller elements back into A
+    //increment the smaller elemen's pointer
     while (i <= leftend && j <= rightend)
     {
         if (B[i] <= B[j])
         {
             A[k] = B[i];
-            i++;
+            i++; 
         }
         else
         {
@@ -72,9 +73,15 @@ void my_mergesort(int left, int right)
     if (left < right)
     {
         int mid = (left + right) / 2;
+        //recursively sort left and right halves
+        //recursion magic ngl
         my_mergesort(left, mid);
         my_mergesort(mid + 1, right);
         merge(left, mid, mid + 1, right);
+    }
+    else
+    {
+        return;
     }
 }
 
@@ -88,6 +95,9 @@ void * parallel_mergesort(void *arg)
 
     if (level >= cutoff)
     {
+        //base case
+        //cutoff is where we switch from threads to sequential
+    
         my_mergesort(left, right);
         return NULL;
     }
@@ -99,11 +109,17 @@ void * parallel_mergesort(void *arg)
         struct argument *leftArg = buildArgs(left, mid, level + 1);
         struct argument *rightArg = buildArgs(mid + 1, right, level + 1);
 
+        //intialise our threads for left and right
         pthread_t leftThread, rightThread;
 
         //create threads for left and right sub arrays
+        //thread, attributes (not needed), function to execute, function arguments
+        //threads operate on their function, locks aren't needed since each thread is operating on a different side of the array
+        //not accessing same values
         pthread_create(&leftThread, NULL, parallel_mergesort, (void *)leftArg);
         pthread_create(&rightThread, NULL, parallel_mergesort, (void *)rightArg);
+
+        
 
         //wait for both threads to finish
         pthread_join(leftThread, NULL);
