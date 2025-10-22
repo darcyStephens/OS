@@ -159,13 +159,13 @@ int main(int argc, char **argv) {
 	sorting_time = getMilliSeconds() - start_time;
 
 	// print the array, for debugging purpose.
-	printA();
-	printB();
+	// printA();
+	// printB();
 	// print results if correctly sorted otherwise cry foul and exit
 	if (check_if_sorted(A,n)) {
-		printf("Sorting %d elements took %4.2lf seconds.\n", n,  sorting_time/1000.0);
+		printf("\033[0;32mSorting %d elements took %4.2lf seconds.\033[0m\n", n,  sorting_time/1000.0);
 	} else {
-		printf("%s: sorting failed!!!!\n", argv[0]);
+		printf("\033[0;31m%s: sorting failed!!!!\033[0m\n", argv[0]);
 		free(arg);
 		free(B);
 		free(A);

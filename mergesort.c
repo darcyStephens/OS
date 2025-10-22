@@ -8,6 +8,9 @@
 #include <stdlib.h> /* for malloc */
 #include "mergesort.h"
 
+#define MAX_THREADS 8 //speed goes to shit beyond 8
+int active_threads = 1; //starting with the main thread
+pthread_mutex_t count_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void print_array_(int left, int right, int *array) {
     while (left <= right) {
@@ -18,7 +21,7 @@ void print_array_(int left, int right, int *array) {
 }
 
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 
 
 /* this function will be called by mergesort() and also by parallel_mergesort(). */
@@ -93,16 +96,11 @@ void * parallel_mergesort(void *arg)
     int right = args->right;
     int level = args->level;
 
-    if (level >= cutoff)
-    {
-        //base case
-        //cutoff is where we switch from threads to sequential
+   
     
-        my_mergesort(left, right);
-        return NULL;
-    }
-    else
+    if(active_threads < MAX_THREADS && level < cutoff)
     {
+        
         int mid = (left + right) / 2;
 
         //build arguments for left and right sub arrays
@@ -110,7 +108,10 @@ void * parallel_mergesort(void *arg)
         struct argument *rightArg = buildArgs(mid + 1, right, level + 1);
 
         //intialise our threads for left and right
+        pthread_mutex_lock(&count_lock); //lock because we are going to increment the number of active threads
         pthread_t leftThread, rightThread;
+        active_threads +=2;
+        pthread_mutex_unlock(&count_lock); //done incrementing
 
         //create threads for left and right sub arrays
         //thread, attributes (not needed), function to execute, function arguments
@@ -125,12 +126,22 @@ void * parallel_mergesort(void *arg)
         pthread_join(leftThread, NULL);
         pthread_join(rightThread, NULL);
 
+        pthread_mutex_lock(&count_lock);
+        active_threads -= 2;
+        pthread_mutex_unlock(&count_lock);
+
         //merge the sorted sub arrays
         merge(left, mid, mid + 1, right);
 
         // //free allocated memory for arguments
-        // free(leftArg);
-        // free(rightArg);
+        free(leftArg);
+        free(rightArg);
+        return NULL;
+    }
+    else
+    {
+        //more threads asked for than needed or we reached the cutoff and switch to sequential
+        my_mergesort(left, right);
         return NULL;
     }
 
