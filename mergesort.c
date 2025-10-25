@@ -55,13 +55,13 @@ void merge(int leftstart, int leftend, int rightstart, int rightend) {
 }
 
 /* this function will be called by parallel_mergesort() as its base case. */
-void mergesort(int left, int right) {
+void my_mergesort(int left, int right) {
   if (left >= right) return;
   int mid = (left + right) / 2;
   // recursively sort left and right halves
   // recursion magic ngl
-  mergesort(left, mid);
-  mergesort(mid + 1, right);
+  my_mergesort(left, mid);
+  my_mergesort(mid + 1, right);
   merge(left, mid, mid + 1, right);
 }
 
@@ -77,7 +77,7 @@ void* parallel_mergesort(void* arg) {
     // base case
     // cutoff is where we switch from threads to sequential
 
-    mergesort(left, right);
+    my_mergesort(left, right);
     return NULL;
   }
 
