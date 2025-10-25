@@ -158,6 +158,7 @@ int main(int argc, char** argv) {
   // printA();
   // printB();
   // print results if correctly sorted otherwise cry foul and exit
+
   if (check_if_sorted(A, n)) {
     printf("\033[0;32mSorting %d elements took %4.2lf seconds.\033[0m\n", n,
            sorting_time / 1000.0);

@@ -26,7 +26,7 @@ void merge(int leftstart, int leftend, int rightstart, int rightend) {
 
   int i = leftstart;
   int j = rightstart;
-  int k = leftstart;
+  int k = leftstart;  // target index to copy into
 
   // compare and place smaller elements back into A
   // increment the smaller elemen's pointer
@@ -73,7 +73,7 @@ void* parallel_mergesort(void* arg) {
 
   if (left >= right) return NULL;
 
-  if (level >= cutoff) {
+  if (level >= cutoff || level >= 12) {
     // base case
     // cutoff is where we switch from threads to sequential
 
