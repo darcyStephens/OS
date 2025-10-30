@@ -12,28 +12,28 @@ This program is the implementation of the mergesort algorithm with parallel thre
 A listing of source files and other non-generated files, and a brief
 (one-line) explanation of the purpose of each file.
 
-- mergesort.c
+- mergesort.c  
   This is the main file holding the mergesort algorithm implementation source code.
 
-- mergesort.h
+- mergesort.h  
   This file declares and defines the functions, global variables, and data structures that are to be used in the mergesort.c file.
 
-- mergetester.c
+- mergetester.c  
   This file contains ???
 
-- test-mergesort.c
+- test-mergesort.c  
   This file tests whether the mergesort implementation works as expected based on validation of sorting a randomly generated array and timing.
 
-* tester.sh
+* tester.sh  
   This file contains a bash script that compiles mergesort.c and runs testing with a list of parameters to test the correctness of the program.
 
-* plot_performance.py
+* plot_performance.py  
   This file visualises the performance of the margesort program based on timing.
 
-* Makefile
+* Makefile  
   This file compiles the mergesort.c and test-mergesort.c to be executed.
 
-* README.md
+* README.md  
   This file provides an overview for the assignment and program, specifying features, providing a guide for using the program, and a reflection of the project development process.
 
 ## Building the project
@@ -42,6 +42,30 @@ This section should tell the user how to build your code. If you are
 delivering a library, where does it need to be installed, or how do you use
 it? Is this an executable, if so, how can a user get up to speed as fast as
 possible?
+
+#### Running the main program
+
+To run the main program, build with
+
+```bash
+make .
+```
+
+#### Running tests
+
+Testing is automated with a list of different parameters for mergesort.c. It will display timings to evaluate performance.
+
+```bash
+sh tester.sh // builds and tests
+```
+
+**Visualising performance**
+To plot the timing for your tests, run
+
+```bash
+pip install matplotlib
+python plot_performance.py
+```
 
 ## Features and usage
 
@@ -67,6 +91,12 @@ What kinds of errors did you get? How did you fix them?
 What parts of the project did you find challenging? Is there anything that
 finally "clicked" for you in the process of working on this project? How well
 did the development and testing process go for you?
+
+#### Issues
+
+The first issue encountered was not knowing how to implement mergesort - which was quickly fixed from some rudimentary research online. Then, it was understanding how to use the Threads API - which was fixed by reading the referenced documentation on the assignment page (and the information provided on the assignment page itself). Then, it was actually implementing the parallel mergesort, which required some back and forth with debugging, finding more bugs, then debugging again - a common process for learning new implementations.
+
+#### Findings
 
 ## Sources Used
 
