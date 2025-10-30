@@ -36,6 +36,7 @@ void merge(int A[], int leftstart, int leftend, int rightstart, int rightend) {
     k++;
   }
 }
+
 #include <stdio.h>
 /* this function will be called by parallel_mergesort() as its base case. */
 void my_mergesort(int A[], int left, int right) {
