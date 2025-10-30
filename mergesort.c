@@ -9,6 +9,9 @@
 #include <stdlib.h> /* for malloc */
 #include <string.h> /* for memcpy */
 
+#define MAX_LEVEL 12
+
+// print array for debugging purposes
 void print_array_(int left, int right, int* array) {
   while (left <= right) {
     printf("%d, ", array[left]);
@@ -20,36 +23,37 @@ void print_array_(int left, int right, int* array) {
 /* this function will be called by mergesort() and also by parallel_mergesort().
  */
 void merge(int leftstart, int leftend, int rightstart, int rightend) {
-  // copy the contents of A into B
+  // copy the contents of A into B for inplace & stable sortnig
   memcpy(&B[leftstart], &A[leftstart],
-         (rightend - leftstart + 1) * sizeof(int));
+         (rightend - leftstart + 1) *
+             sizeof(int));  // allocate enough space to fit the whole array
 
-  int i = leftstart;
-  int j = rightstart;
+  int l = leftstart;
+  int r = rightstart;
   int k = leftstart;  // target index to copy into
 
   // compare and place smaller elements back into A
   // increment the smaller elemen's pointer
-  while (i <= leftend && j <= rightend) {
-    if (B[i] <= B[j]) {
-      A[k] = B[i];
-      i++;
+  while (l <= leftend && r <= rightend) {
+    if (B[l] <= B[r]) {
+      A[k] = B[l];
+      l++;
     } else {
-      A[k] = B[j];
-      j++;
+      A[k] = B[r];
+      r++;
     }
     k++;
   }
 
   // clean up remaining elements
-  while (i <= leftend) {
-    A[k] = B[i];
-    i++;
+  while (l <= leftend) {
+    A[k] = B[l];
+    l++;
     k++;
   }
-  while (j <= rightend) {
-    A[k] = B[j];
-    j++;
+  while (r <= rightend) {
+    A[k] = B[r];
+    r++;
     k++;
   }
 }
@@ -58,8 +62,7 @@ void merge(int leftstart, int leftend, int rightstart, int rightend) {
 void my_mergesort(int left, int right) {
   if (left >= right) return;
   int mid = (left + right) / 2;
-  // recursively sort left and right halves
-  // recursion magic ngl
+  // recursively sort and merge left and right halves
   my_mergesort(left, mid);
   my_mergesort(mid + 1, right);
   merge(left, mid, mid + 1, right);
@@ -73,10 +76,9 @@ void* parallel_mergesort(void* arg) {
 
   if (left >= right) return NULL;
 
-  if (level >= cutoff || level >= 12) {
+  if (level >= cutoff || level >= MAX_LEVEL) {
     // base case
     // cutoff is where we switch from threads to sequential
-
     my_mergesort(left, right);
     return NULL;
   }
