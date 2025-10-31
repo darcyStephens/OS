@@ -74,13 +74,14 @@ instruct the user how to use your program.
 
 ## Testing
 
-This section should detail how you tested your code. Simply stating "I ran
-it a few times and it seems to work" is not sufficient. Your testing needs
-to be detailed here.
+The code was initially tested using the tester.sh script to test a variety of valid inputs and invalid inputs.
+the plot_performance.py runs the testing script provided and graphs the time it took to execute, these findings were then used to limit
+the number of threads allowed to run at any given time, with the goal of optimising execution time.
+
 
 ## Known Bugs
 
-List known bugs that you weren't able to fix (or ran out of time to fix).
+No bugs have been found from our testing
 
 ## Reflection and Self Assessment
 
