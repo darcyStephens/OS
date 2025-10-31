@@ -72,6 +72,7 @@ void my_mergesort(int left, int right) {
   my_mergesort(mid + 1, right);
 
   // merge the sorted sub arrays
+  //sorting is happening through merge as you go back up the recursive stack
   merge(left, mid, mid + 1, right);
 }
 
