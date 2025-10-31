@@ -9,7 +9,7 @@
 #include <stdlib.h> /* for malloc */
 #include <string.h> /* for memcpy */
 
-#define MAX_LEVEL 12
+#define MAX_LEVEL 15
 
 // print array for debugging purposes
 void print_array_(int left, int right, int* array) {
@@ -111,8 +111,36 @@ void* parallel_mergesort(void* arg) {
   // thread, attributes (deafult= NULL), function to execute, function arguments
   // threads operate on their function, locks aren't needed since each thread is
   // operating on a different side of the array not accessing same values
-  pthread_create(&leftThread, NULL, parallel_mergesort, (void*)leftArg);
-  pthread_create(&rightThread, NULL, parallel_mergesort, (void*)rightArg);
+  int left_result =
+      pthread_create(&leftThread, NULL, parallel_mergesort, (void*)leftArg);
+  if (left_result != 0) {
+    fprintf(stderr,
+            "Error: pthread_create failed for left thread (cutoff level: %d)\n",
+            level + 1);
+    // Fall back to sequential sorting
+    my_mergesort(left, mid);
+    my_mergesort(mid + 1, right);
+    merge(left, mid, mid + 1, right);
+    free(leftArg);
+    free(rightArg);
+    return NULL;
+  }
+
+  int right_result =
+      pthread_create(&rightThread, NULL, parallel_mergesort, (void*)rightArg);
+  if (right_result != 0) {
+    fprintf(
+        stderr,
+        "Error: pthread_create failed for right thread (cutoff level: %d)\n",
+        level + 1);
+    // Wait for left thread and fall back to sequential for right
+    pthread_join(leftThread, NULL);
+    my_mergesort(mid + 1, right);
+    merge(left, mid, mid + 1, right);
+    free(leftArg);
+    free(rightArg);
+    return NULL;
+  }
 
   // wait for both threads to finish
   pthread_join(leftThread, NULL);
