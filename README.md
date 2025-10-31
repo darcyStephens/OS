@@ -48,7 +48,9 @@ possible?
 To run the main program, build with
 
 ```bash
-make .
+make clean
+make 
+./test-mergesort <input size> <cutoff level> <seed>
 ```
 
 #### Running tests
