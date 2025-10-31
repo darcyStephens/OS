@@ -56,7 +56,7 @@ make .
 Testing is automated with a list of different parameters for mergesort.c. It will display timings to evaluate performance.
 
 ```bash
-sh tester.sh // builds and tests
+./tester.sh // builds and tests
 ```
 
 **Visualising performance**
